@@ -3,6 +3,7 @@
                       :username "<%= p("riemann.influxdb.username") %>"
                       :password "<%= p("riemann.influxdb.password") %>"
                       :db "<%= p("riemann.influxdb.database") %>"
+                      :tag-fields #{:host :event_type :ip :index :job}
 		      :version :<%= p("riemann.influxdb.version") %>})
 
 (defn influx [opts] (batch 500 30 (influxdb (merge influxdb-config opts))))
