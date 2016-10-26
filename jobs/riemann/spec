@@ -22,6 +22,7 @@ templates:
    config/logsearch.clj.erb: include/logsearch.clj
    config/interface.clj.erb: include/interface.clj
    config/influxdb.clj.erb: include/influxdb.clj
+   config/influxdb_backups.clj.erb: include/influxdb_backups.clj
    config/alert.clj.erb: include/alert.clj
    config/awslogs.clj.erb: include/awslogs.clj
 

@@ -1,0 +1,12 @@
+(info "Loading influxdb-backup alerts")
+
+(defn influxdb-backup-alerts [pd]
+  (info "Setting up influxdb-backup alerts")
+    (try
+      (where
+        (service "influxdb.backup")
+        (where (state "expired")
+          (:trigger pd)
+          (else (:resolve pd))))
+    (catch Exception e #(warn "influxdb-backup-exception: " (.getMessage e))))
+)

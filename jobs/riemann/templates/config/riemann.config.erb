@@ -20,6 +20,7 @@
 (include "/var/vcap/jobs/riemann/include/disk.clj")
 (include "/var/vcap/jobs/riemann/include/swap.clj")
 (include "/var/vcap/jobs/riemann/include/influxdb.clj")
+(include "/var/vcap/jobs/riemann/include/influxdb_backups.clj")
 (include "/var/vcap/jobs/riemann/include/awslogs.clj")
 
 (let [index (index)]
@@ -54,6 +55,8 @@
      (snort-alerts pd)
      (disk-alerts pd)
      (swap-alerts pd)
+
+     (influxdb-backup-alerts pd)
 
      ; Send events to influxdb with firehose attributes as tags
      (influx {:tags {"env" "<%= p("riemann.influxdb.database") %>"}
