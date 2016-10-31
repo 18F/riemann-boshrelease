@@ -30,6 +30,10 @@ properties:
     description: "Port of the Elastic server to emit metrics for."
     default: 9200
 
+  riemann_emitter.tags:
+    description: "Tags to attach to all events emitted."
+    default: []
+
   riemann_emitter.attributes:
     description: "Attributes to attach to all events emitted."
     default: []
