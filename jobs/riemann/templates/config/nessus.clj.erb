@@ -1,0 +1,11 @@
+(info "Loading nessus alerts")
+
+(defn nessus-alerts [pd]
+  (info "Setting up nessus alerts")
+
+  (try
+    (where (service "nessus-manager.license") 
+      (changed-state {:init "ok"}
+        (where (state "ok") (:resolve pd)
+        (else (where (state "critical") (:trigger pd))))))
+    (catch Exception e #(warn "nessus-exception: " (.getMessage e)))))
