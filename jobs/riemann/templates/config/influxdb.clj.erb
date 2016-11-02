@@ -5,10 +5,10 @@
                       :db "<%= p("riemann.influxdb.database") %>"
                       :version :<%= p("riemann.influxdb.version") %>})
 
-(defn influx [opts]
+(defn influx [opts pd]
   (batch 1000 30
     (let [opts (merge influxdb-config opts)
-          throttled-alert (throttle 1 900 index)
+          throttled-alert (throttle 1 900 (:trigger pd))
           throttled-log (throttle 1 60 #(warn "influxdb-send-exception: " (.getMessage %)))
           send-influx (influxdb opts)]
       (async-queue! :agg {:queue-size 1e3
@@ -16,15 +16,19 @@
                           :max-pool-size 4
                           :keep-alive-time 60000}
         (fn influx-sending [event]
-          (try
-            (send-influx event)
-            (catch Exception e
-              (throttled-alert {:host "riemann.internal"
-                                :service "send-influx"
-                                :state "critical"
-                                :metric 1
-                                :tags []
-                                :ttl 60
-                                :description (.getMessage e)
-                                :time (time/unix-time-real)})
-               (throttled-log e))))))))
+          ; Hack: replace missing tags with "missing" to prevent write errors
+          (let [key-missing (fn [ev] (or (= (:deployment ev) "") (not (:deployment ev))))
+                clean-missing (fn [ev] (assoc ev :deployment (if (key-missing ev) "missing" (:deployment ev))))
+                event-clean (map clean-missing event)]
+            (try
+              (send-influx event-clean)
+              (catch Exception e
+                (throttled-alert {:host "riemann.internal"
+                                  :service "send-influx"
+                                  :state "critical"
+                                  :metric 1
+                                  :tags []
+                                  :ttl 60
+                                  :description (.getMessage e)
+                                  :time (time/unix-time-real)})
+                (throttled-log e)))))))))

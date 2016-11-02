@@ -60,5 +60,6 @@
 
      ; Send events to influxdb with firehose attributes as tags
      (influx {:tags {"env" "<%= p("riemann.influxdb.database") %>"}
-              :tag-fields #{:host :deployment :job :index :ip}})
+              :tag-fields #{:host :deployment :job :index :ip}}
+             pd)
 )))
