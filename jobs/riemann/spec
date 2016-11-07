@@ -25,6 +25,8 @@ templates:
    config/influxdb_backups.clj.erb: include/influxdb_backups.clj
    config/alert.clj.erb: include/alert.clj
    config/awslogs.clj.erb: include/awslogs.clj
+   config/unknown-vms.clj.erb: include/unknown-vms.clj
+   config/nessus.clj.erb: include/nessus.clj
 
 packages:
   - java

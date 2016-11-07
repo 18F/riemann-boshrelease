@@ -1,0 +1,43 @@
+(defn find-unknown-vms []
+  (where (or (service "aws.ec2.describe-instances") (service "bosh.hm"))
+    (fixed-time-window 120
+      (fn [events]
+        (let  [
+                bosh-nodes (set (for [x (filter #(= (get % :service) "bosh.hm") events) ] (:node_id x)))
+                aws-nodes  (set (for [x (filter #(= (get % :service) "aws.ec2.describe-instances") events)] (:host x)))
+                unknown-nodes (clojure.set/difference aws-nodes bosh-nodes)
+              ]
+
+              (doseq [x bosh-nodes]
+                (reinject (event {:service "unknown-vm" :metric 1 :state "ok" :host x}))
+              )
+
+              (doseq [x unknown-nodes]
+                (reinject (event {:service "unknown-vm" :metric 1 :state "critical" :host x}))
+              )
+
+              (if (empty? aws-nodes)
+                (reinject (event {:service "unknown-vm" :metric 1 :state "critical" :host "aws-nodes-empty"}))
+                (reinject (event {:service "unknown-vm" :metric 1 :state "ok" :host "aws-nodes-empty"}))
+              )
+        )
+      )
+    )
+  )
+)
+
+(defn unknown-vm-alert [pd]
+  (where (service "unknown-vm")
+    (changed-state {:init "ok"}
+      (where
+        (state "critical")
+          #(warn %)
+          (:trigger pd)
+        (else
+          #(info %)
+          (:resolve pd)
+        )
+      )
+    )
+  )
+)
