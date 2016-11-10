@@ -23,6 +23,7 @@
 (include "/var/vcap/jobs/riemann/include/influxdb_backups.clj")
 (include "/var/vcap/jobs/riemann/include/awslogs.clj")
 (include "/var/vcap/jobs/riemann/include/nessus.clj")
+(include "/var/vcap/jobs/riemann/include/unknown-vms.clj")
 
 (let [index (index)]
   (streams
@@ -55,6 +56,9 @@
      (snort-alerts pd)
      (disk-alerts pd)
      (swap-alerts pd)
+
+     (find-unknown-vms)
+     (unknown-vm-alert pd)
 
      (influxdb-backup-alerts pd)
 
