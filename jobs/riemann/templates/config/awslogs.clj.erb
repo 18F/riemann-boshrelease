@@ -2,14 +2,14 @@
 
 (defn awslogs-alerts [pd]
   (info "Setting up awslogs alerts")
-  (sdo
-    <% p("riemann.awslogs.metrics").each do |metric| %>
-    (where
-      (service #"<%= metric["service"] %>*")
-        (changed :metric
-          (where (> (- (System/currentTimeMillis) metric) (* <%= metric["threshold"] %> 1000))
-            (:trigger pd)
-            (else (:resolve pd)))))
-    <% end %>
-  )
-)
+    (let [whitelist #{<%= p("riemann.awslogs.whitelist").map { |item| "'awslogs.#{item}.lastEventTimestamp'" }.join(" ") %>}]
+      (sdo
+        <% p("riemann.awslogs.metrics").each do |metric| %>
+        (where
+          (and (service #"<%= metric["service"] %>*") (not (contains? whitelist (:service event))))
+            (changed :metric
+              (where (> (- (System/currentTimeMillis) metric) (* <%= metric["threshold"] %> 1000))
+                (:trigger pd)
+                (else (:resolve pd)))))
+        <% end %>
+      )))

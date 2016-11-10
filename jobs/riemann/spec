@@ -1,30 +1,30 @@
 ---
 name: riemann
 templates:
-   bin/riemann_ctl: bin/riemann_ctl
-   bin/monit_debugger: bin/monit_debugger
-   data/properties.sh.erb: data/properties.sh
-   helpers/ctl_setup.sh: helpers/ctl_setup.sh
-   helpers/ctl_utils.sh: helpers/ctl_utils.sh
-   config/riemann.config.erb: config/riemann.config
-   config/pagerduty.clj.erb: include/pagerduty.clj
-   config/expire.clj.erb: include/expire.clj
-   config/health_monitor.clj.erb: include/health_monitor.clj
-   config/firehose.clj.erb: include/firehose.clj
-   config/monitor.clj.erb: include/monitor.clj
-   config/elastic.clj.erb: include/elastic.clj
-   config/rds.clj.erb: include/rds.clj
-   config/clamav.clj.erb: include/clamav.clj
-   config/snort.clj.erb: include/snort.clj
-   config/disk.clj.erb: include/disk.clj
-   config/swap.clj.erb: include/swap.clj
-   config/logging.clj.erb: include/logging.clj
-   config/logsearch.clj.erb: include/logsearch.clj
-   config/interface.clj.erb: include/interface.clj
-   config/influxdb.clj.erb: include/influxdb.clj
-   config/influxdb_backups.clj.erb: include/influxdb_backups.clj
-   config/alert.clj.erb: include/alert.clj
-   config/awslogs.clj.erb: include/awslogs.clj
+  bin/riemann_ctl: bin/riemann_ctl
+  bin/monit_debugger: bin/monit_debugger
+  data/properties.sh.erb: data/properties.sh
+  helpers/ctl_setup.sh: helpers/ctl_setup.sh
+  helpers/ctl_utils.sh: helpers/ctl_utils.sh
+  config/riemann.config.erb: config/riemann.config
+  config/pagerduty.clj.erb: include/pagerduty.clj
+  config/expire.clj.erb: include/expire.clj
+  config/health_monitor.clj.erb: include/health_monitor.clj
+  config/firehose.clj.erb: include/firehose.clj
+  config/monitor.clj.erb: include/monitor.clj
+  config/elastic.clj.erb: include/elastic.clj
+  config/rds.clj.erb: include/rds.clj
+  config/clamav.clj.erb: include/clamav.clj
+  config/snort.clj.erb: include/snort.clj
+  config/disk.clj.erb: include/disk.clj
+  config/swap.clj.erb: include/swap.clj
+  config/logging.clj.erb: include/logging.clj
+  config/logsearch.clj.erb: include/logsearch.clj
+  config/interface.clj.erb: include/interface.clj
+  config/influxdb.clj.erb: include/influxdb.clj
+  config/influxdb_backups.clj.erb: include/influxdb_backups.clj
+  config/alert.clj.erb: include/alert.clj
+  config/awslogs.clj.erb: include/awslogs.clj
 
 packages:
   - java
@@ -73,7 +73,7 @@ properties:
     description: "Amount of disk in bits remaining before warning"
     default: 5000000000
 
-   # Swap alert settings
+  # Swap alert settings
   riemann.swap.critical:
     description: "Amount of swap in bits remaining before alerting"
     default: 1000000000
@@ -97,6 +97,9 @@ properties:
     description: "CPU utilization alert threshold"
 
   # aws logs settings
+  riemann.awslogs.whitelist:
+    description: "List of log groups to ignore"
+    default: []
   riemann.awslogs.metrics:
     description: "List of hashes with service name and outlier threshold in seconds"
     default:
