@@ -8,7 +8,7 @@
     )
     (where (service "unknown-vm.found")
       (changed-state {:init "ok"}
-        (stable 180 :state
+        (stable 300 :state
           (where (or (state "expired") (state "ok"))
               #(info %)
               (:resolve pd)
