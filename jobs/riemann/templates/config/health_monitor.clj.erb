@@ -1,9 +1,27 @@
 (info "Loading health monitor alerts")
 
+(defn rewrite-bosh-hm-events []
+  (where (service "bosh.hm")
+    ; rewrite bosh.hm events so state = job_state, service = service.name, host = deployment.job.index
+    (smap #(assoc % :state (:job_state %) :service (str (:service %) "." (:name %)) :host (str (:deployment %) "." (:job %) "." (:index %)))
+      #(reinject %)
+    )
+  )
+)
+
 (defn hm-alerts [pd]
   (info "Setting up health monitor alerts")
-  (try
-    (where
-      (and (service "bosh.hm") (state "alert"))
-      (:trigger pd))
-  (catch Exception e #(warn "clamav-exception: " (.getMessage e)))))
+  (where (service "bosh.hm.system.healthy")
+    (changed-state {:init "running"}
+      (stable 180 :state
+        (where (state "failing")
+          #(warn %)
+          (:trigger pd)
+        (else
+          #(info %)
+          (:resolve pd)
+        ))
+      )
+    )
+  )
+)

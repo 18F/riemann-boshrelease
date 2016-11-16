@@ -29,6 +29,8 @@
   (streams
    (default :ttl 60
      index
+
+     (rewrite-bosh-hm-events)
      (hm-alerts pd)
 
      <% if_p("riemann.logsearch.platform_logs_threshold", "riemann.logsearch.app_logs_threshold") do %>
