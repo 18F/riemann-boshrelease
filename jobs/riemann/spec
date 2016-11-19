@@ -30,6 +30,7 @@ templates:
 
 packages:
   - java
+  - jq-1.5
   - riemann
 
 properties:
