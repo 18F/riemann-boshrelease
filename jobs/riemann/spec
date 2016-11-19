@@ -27,6 +27,7 @@ templates:
   config/awslogs.clj.erb: include/awslogs.clj
   config/unknown-vms.clj.erb: include/unknown-vms.clj
   config/nessus.clj.erb: include/nessus.clj
+  config/no_logs.clj.erb: include/no_logs.clj
 
 packages:
   - java

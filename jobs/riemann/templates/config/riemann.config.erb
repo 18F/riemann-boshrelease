@@ -24,12 +24,15 @@
 (include "/var/vcap/jobs/riemann/include/awslogs.clj")
 (include "/var/vcap/jobs/riemann/include/nessus.clj")
 (include "/var/vcap/jobs/riemann/include/unknown-vms.clj")
+(include "/var/vcap/jobs/riemann/include/no_logs.clj")
+
 
 (let [index (index)]
   (streams
    (default :ttl 60
      index
 
+     (find_vms_missing_logs)
      (rewrite-bosh-hm-events)
      (hm-alerts pd)
 
