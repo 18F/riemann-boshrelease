@@ -1,28 +1,24 @@
-; find VMs that aren't logging and emit new events
 (defn find_vms_missing_logs []
   (by :host
     (project [(service "aws.ec2.describe-instances") (service "aws.logs.describe-log-streams.heartbeat")]
       (smap (fn [events]
-        ; has the VM been up for at least 10 minutes?
-        (if (> (:metric (first events)) 600)
-          ; and it hasn't logged at all (nil) or in the last 10 minutes?
-          (if (or (nil? (second events)) (> (:metric (second events)) 600))
-            (reinject (event {:host (:host (first events)) :metric (:metric (second events)) :state "critical" :service "log.heartbeat"}))
-            (reinject (event {:host (:host (first events)) :metric (:metric (second events)) :state "ok" :service "log.heartbeat"}))
-          )
-        )
-      ))
-    )
-  )
-)
+        (let [
+          instance (if (nil? (first events)) (:host (second events)) (:host (first events)))
+          uptime (if (nil? (first events)) 0 (:metric (first events)))
+          lastlog (if (nil? (second events)) 86400 (:metric (second events)))]
 
-; filter our any blips in logging, so only consistent failures trigger stop events
-(defn stablize_missing_logs []
-  (where (service "log.heartbeat")
-    (by :host
-      (stable 60 :state
-        (if (= :state "critical")
-            #(reinject (event {:host (:host %) :metric (:metric %) :state "critical" :service "stop-vm"}))
+          (event {
+            :service "log.heartbeat"
+            :host instance
+            :metric lastlog
+            :state (if (and (> uptime 600) (> lastlog 600)) "critical" "ok")
+          })
+        ))
+
+        (stable 60 :state
+          (where (state "critical")
+            (with :service "stop-vm" reinject)
+          )
         )
       )
     )
