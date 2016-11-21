@@ -18,10 +18,12 @@
 
 ; filter our any blips in logging, so only consistent failures trigger stop events
 (defn stablize_missing_logs []
-  (where (and (service "log.heartbeat") (state "critical"))
+  (where (service "log.heartbeat")
     (by :host
       (stable 60 :state
-        #(reinject (event {:host (:host %) :state "critical" :service "stop-vm"}))
+        (if (= :state "critical")
+            #(reinject (event {:host (:host %) :metric (:metric %) :state "critical" :service "stop-vm"}))
+        )
       )
     )
   )
