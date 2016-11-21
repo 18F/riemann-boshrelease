@@ -7,8 +7,8 @@
         (if (> (:metric (first events)) 600)
           ; and it hasn't logged at all (nil) or in the last 10 minutes?
           (if (or (nil? (second events)) (> (:metric (second events)) 600))
-            (reinject (event {:host (:host (first events)) :state "critical" :service "log.heartbeat"}))
-            (reinject (event {:host (:host (first events)) :state "ok" :service "log.heartbeat"}))
+            (reinject (event {:host (:host (first events)) :metric (:metric (second events)) :state "critical" :service "log.heartbeat"}))
+            (reinject (event {:host (:host (first events)) :metric (:metric (second events)) :state "ok" :service "log.heartbeat"}))
           )
         )
       ))
