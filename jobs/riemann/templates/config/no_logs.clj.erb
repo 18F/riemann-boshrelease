@@ -29,8 +29,11 @@
 (defn snapshot_and_stop_vm [pd]
   (where (service "stop-vm")
     (throttle 1 60
-      ; TODO: raise PD alert, and shell out to AWS to snapshot and stop VM
-      #(warn %)
+      (fn [event]
+        (warn event)
+        (println (:out (clojure.java.shell/sh "/var/vcap/jobs/riemann/bin/stop-vm.sh" (:host event))))
+      )
     )
   )
 )
+

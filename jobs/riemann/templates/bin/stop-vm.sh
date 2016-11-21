@@ -13,6 +13,8 @@ INSTANCE_ID="$1"
 
 set -eu
 
+exec 2>&1
+
 # where are we?
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd)/$(basename $0)"
 

@@ -37,6 +37,11 @@ packages:
   - riemann
 
 properties:
+  # IaaS configuration
+  aws.default_region:
+    description: The region for this instance
+    default: ""
+
   # Riemann configurations
   riemann.override_hostname:
     description: "Override server hostname"
