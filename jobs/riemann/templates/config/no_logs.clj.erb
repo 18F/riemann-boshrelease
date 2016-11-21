@@ -1,15 +1,38 @@
+; find VMs that aren't logging and emit new events
 (defn find_vms_missing_logs []
-  (where (or (service "aws.ec2.describe-instances") (service #"aws.logs.describe-log-streams.*"))
-    #(info %)
-    ; TODO: find describe-instances > X where describe-log-streams is > Y
-    ; reinject new events based on Y:  Y > threshold: low alert and snapshot.  Y > threshold*2 raise alert to medium, Y > threshold*3, raise alert to high and snapshot again, and stop VM
+  (by :host
+    (project [(service "aws.ec2.describe-instances") (service "aws.logs.describe-log-streams.heartbeat")]
+      (smap (fn [events]
+        ; has the VM been up for at least 10 minutes?
+        (if (> (:metric (first events)) 600)
+          ; and it hasn't logged at all (nil) or in the last 10 minutes?
+          (if (or (nil? (second events)) (> (:metric (second events)) 600))
+            (reinject (event {:host (:host (first events)) :state "critical" :service "log.heartbeat"}))
+            (reinject (event {:host (:host (first events)) :state "ok" :service "log.heartbeat"}))
+          )
+        )
+      ))
+    )
   )
 )
 
-(defn snapshot_and_stop_vms []
- (where (service "reinjected-alert-service-from-above")
-   #(warn %)
-   ; TODO: rate limit (maybe with throttle) the number of snapshots and shutdowns we handle so if cloudwatch fails we don't kill the entire deployment immediately
-   ; TODO: Use AWS Java libary or just clojure.java.shell to execute awscli to snapshot and stop instances
- )
+; filter our any blips in logging, so only consistent failures trigger stop events
+(defn stablize_missing_logs []
+  (where (and (service "log.heartbeat") (state "critical"))
+    (by :host
+      (stable 60 :state
+        #(reinject (event {:host (:host %) :state "critical" :service "stop-vm"}))
+      )
+    )
+  )
+)
+
+; throttle stop events to one every X minutes so we don't accidentally kill the entire farm
+(defn snapshot_and_stop_vm [pd]
+  (where (service "stop-vm")
+    (throttle 1 60
+      ; TODO: raise PD alert, and shell out to AWS to snapshot and stop VM
+      #(warn %)
+    )
+  )
 )
