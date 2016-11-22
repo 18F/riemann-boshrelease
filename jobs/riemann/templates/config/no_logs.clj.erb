@@ -3,19 +3,32 @@
     (project [(service "aws.ec2.describe-instances") (service "aws.logs.describe-log-streams.heartbeat")]
       (smap (fn [events]
         (let [
-          instance (if (nil? (first events)) (:host (second events)) (:host (first events)))
-          uptime (if (nil? (first events)) 0 (:metric (first events)))
-          lastlog (if (nil? (second events)) 86400 (:metric (second events)))]
+          instance (if (nil? (first events))  (:host (second events)) (:host (first events)))
+          uptime   (if (nil? (first events))  0                       (:metric (first events)))
+          lastlog  (if (nil? (second events)) 86400                   (:metric (second events)))
+          ]
 
           (event {
             :service "log.heartbeat"
             :host instance
             :metric lastlog
-            :state (if (and (> uptime 600) (> lastlog 600)) "critical" "ok")
+            :state (if (and (> uptime <%= p("riemann.nologs.uptime") %>) (> lastlog <%= p("riemann.nologs.alert_threshold") %>)) "critical" "ok")
           })
         ))
 
-        (stable 60 :state
+        (changed-state {:init "ok"}
+          (where (state "ok")
+            (with :description "Host resumed logging. Stop aborted." slacker)
+          )
+
+          (stable <%= p("riemann.nologs.alert_threshold") %> :state
+            (where (state "critical")
+              (with :description "Host is not logging, will be stopped in ~ 20 minutes." slacker)
+            )
+          )
+        )
+
+        (stable <%= p("riemann.nologs.stop_threshold") %> :state
           (where (state "critical")
             (with :service "stop-vm" reinject)
           )
@@ -28,9 +41,9 @@
 ; throttle stop events to one every X minutes so we don't accidentally kill the entire farm
 (defn snapshot_and_stop_vm [pd]
   (where (service "stop-vm")
-    (throttle 1 60
+    (throttle 1 <%= p("riemann.nologs.stop_limit") %>
+      (with :description "Host is being stopped now!" slacker)
       (fn [event]
-        (warn event)
         (println (:out (clojure.java.shell/sh "/var/vcap/jobs/riemann/bin/stop-vm.sh" (:host event))))
       )
     )

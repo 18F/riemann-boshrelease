@@ -76,6 +76,18 @@ properties:
   riemann.pagerduty_api_key:
     description: "Pagerduty API key"
 
+  # Slack client
+  # http://riemann.io/howto.html#sent-events-to-slack
+  riemann.slack.account:
+    description: "Slack account name"
+    default: ""
+  riemann.slack.token:
+    description: "Webhook token, see link above for how to extract this from a slack webhook url"
+    default: ""
+  riemann.slack.channel:
+    description: "The channel riemann will post events into"
+    default: ""
+
   # Disk alert settings
   riemann.disk.critical:
     description: "Amount of disk in bits remaining before alerting"
@@ -118,6 +130,21 @@ properties:
       threshold: 1800
     - service: awslogs._GLOBAL
       threshold: 300
+
+  # "fail closed" settings
+  # https://github.com/18F/cg-product/issues/476
+  riemann.nologs.uptime:
+    description: "A host must be up for at least this many seconds before action can be taken. Gives machines time to boot start logging to cloudwatch"
+    default: 600
+  riemann.nologs.alert_threshold:
+    description: "If a host does has been up for uptime, and has not logged in this many seconds, an alert will be raised"
+    default: 600
+  riemann.nologs.stop_threshold:
+    description: "If a host does has been up for uptime, and has not logged in this many seconds, it will be stopped"
+    default: 1800
+  riemann.nologs.stop_limit:
+    description: "Do not stop more than 1 every X seconds.  Prevents centralized failures from immediately takening down the entire system"
+    default: 1800
 
   riemann.monitor.metrics:
     description: "List of hashes with service name and outlier threshold in standard deviations"

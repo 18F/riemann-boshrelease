@@ -3,6 +3,13 @@
 (ns riemann.config
   (:require [riemann.time :as time]))
 
+<% if p("riemann.slack.account").empty? || p("riemann.slack.token").empty? || p("riemann.slack.channel").empty? %>
+(def slacker #(prn "[slack]" %))
+<% else %>
+(def slack_credentials {:account "<%= p("riemann.slack.account") %>", :token "<%= p("riemann.slack.token") %>"})
+(def slacker (slack slack_credentials {:username "Riemann" :icon ":clojure:" :channel "<%= p("riemann.slack.channel") %>"}))
+<% end %>
+
 ;; plugins includes
 (include "/var/vcap/jobs/riemann/include/expire.clj")
 (include "/var/vcap/jobs/riemann/include/interface.clj")
@@ -25,7 +32,6 @@
 (include "/var/vcap/jobs/riemann/include/nessus.clj")
 (include "/var/vcap/jobs/riemann/include/unknown-vms.clj")
 (include "/var/vcap/jobs/riemann/include/no_logs.clj")
-
 
 (let [index (index)]
   (streams
