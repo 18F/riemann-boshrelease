@@ -17,14 +17,12 @@
         ))
 
         (changed-state {:init "ok"}
-          (where (state "ok")
-            (with :description "Host resumed logging. Stop aborted." slacker)
-          )
-
           (stable <%= p("riemann.nologs.alert_threshold") %> :state
-            (where (state "critical")
+            (where (state "ok")
+              (with :description "Host resumed logging. Stop aborted." slacker)
+            (else
               (with :description "Host is not logging, will be stopped in ~ 20 minutes." slacker)
-            )
+            ))
           )
         )
 
@@ -42,6 +40,7 @@
 (defn snapshot_and_stop_vm [pd]
   (where (service "stop-vm")
     (throttle 1 <%= p("riemann.nologs.stop_limit") %>
+      ; TODO: swap this for a PD alert before moving to production
       (with :description "Host is being stopped now!" slacker)
       (fn [event]
         (println (:out (clojure.java.shell/sh "/var/vcap/jobs/riemann/bin/stop-vm.sh" (:host event))))
