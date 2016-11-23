@@ -16,8 +16,8 @@
           })
         ))
 
-        (changed-state {:init "ok"}
-          (stable <%= p("riemann.nologs.alert_threshold") %> :state
+        (stable <%= p("riemann.nologs.alert_threshold") %> :state
+          (changed-state {:init "ok"}
             (where (state "ok")
               (with :description "Host resumed logging. Stop aborted." slacker)
             (else
