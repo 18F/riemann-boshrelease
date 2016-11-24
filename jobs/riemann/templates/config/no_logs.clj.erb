@@ -1,13 +1,26 @@
 (defn find_vms_missing_logs []
+  ; create a stream for each instance
   (by :host
     (project [(service "aws.ec2.describe-instances") (service "aws.logs.describe-log-streams.heartbeat")]
+      ; events is a two-item vector where the first item is the most recent event from describe-instances
+      ; and the second item is the most recent event from the second service (describe-logs-streams)
+      ; If riemann has not seen one of these events yet, the value for that item is nil
       (smap (fn [events]
         (let [
+          ; get the instance-id from one of the two events
+          ; project guarantess at least one of them will be not nil
           instance (if (nil? (first events))  (:host (second events)) (:host (first events)))
+          ; the number of seconds since the instance was created
           uptime   (if (nil? (first events))  0                       (:metric (first events)))
+          ; the number of seconds since the last log entry, if we haven't been told emit an insanely
+          ; large number instead so that we are sure to trigger actions below for machines that have never logged
           lastlog  (if (nil? (second events)) 86400                   (:metric (second events)))
           ]
 
+          ; emit an event who's state is "critical" if:
+          ;   - the instance was created > X seconds ago (so machines have time to boot and start awslogs)
+          ;   - the instance has not logged anything in > X seconds
+          ; else emit "ok"
           (event {
             :service "log.heartbeat"
             :host instance
@@ -16,16 +29,25 @@
           })
         ))
 
+        ; stablize the output so riemann doesn't flip out when it restarts.
+        ; Due to api rate limits, uptime metrics are emitted every minute https://github.com/18F/cg-deploy-bosh/blob/master/bosh-deployment.yml#L266-L276
+        ; but last log times are only emitted every 5 minutes https://github.com/18F/cg-deploy-monitoring/blob/master/monitoring.yml#L63-L78
+        ; So when riemann first starts machines will go critical until the first log heartbeat arrives within 5 minutes
         (stable <%= p("riemann.nologs.alert_threshold") %> :state
           (changed-state {:init "ok"}
             (where (state "ok")
+              ; tell slack the host recovered
               (with :description "Host resumed logging. Stop aborted." slacker)
             (else
+              ; tell slack something is wrong so operations can look at it, but don't immediately kill the instance
               (with :description "Host is not logging, will be stopped in ~ 20 minutes." slacker)
+              ; TODO: should we raise a PD alert here?
             ))
           )
         )
 
+        ; if we have been critical for > X seconds, then it's time to stop the VM
+        ; We will continue to emit requests to stop the vm until it's stopped or it's state returns to "ok"
         (stable <%= p("riemann.nologs.stop_threshold") %> :state
           (where (state "critical")
             (with :service "stop-vm" reinject)
@@ -36,13 +58,22 @@
   )
 )
 
-; throttle stop events to one every X minutes so we don't accidentally kill the entire farm
 (defn snapshot_and_stop_vm [pd]
   (where (service "stop-vm")
+    ; make sure we only stop 1 instance every X minutes, regardless of how many VMs we are asked to stop
+    ; to avoid taking down the entire system at once if there's a cloudwatch failure
+    ; it's ok to use throttle here, as the above function will continue to emit stop-vm messages until
+    ; the VM has been stopped, so if we throw the message away due to throttle we'll see it again the next
+    ; throttle interval
     (throttle 1 <%= p("riemann.nologs.stop_limit") %>
-      ; TODO: swap this for a PD alert before moving to production
-      (with :description "Host is being stopped now!" slacker)
+      ; tell people we are doing something destructive
+      (with :description "Host is being stopped now!" 
+        (:trigger pd)
+        slacker
+      )
       (fn [event]
+        ; execute a shell script (which uses awscli) to snapshot and stop the VM
+        ; TODO: Someone who likes Clojure and Java more than I do, could replace this call with https://github.com/mcohen01/amazonica
         (println (:out (clojure.java.shell/sh "/var/vcap/jobs/riemann/bin/stop-vm.sh" (:host event))))
       )
     )

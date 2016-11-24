@@ -3,7 +3,6 @@ name: riemann
 templates:
   bin/riemann_ctl: bin/riemann_ctl
   bin/stop-vm.sh: bin/stop-vm.sh
-
   bin/monit_debugger: bin/monit_debugger
   data/properties.sh.erb: data/properties.sh
   helpers/ctl_setup.sh: helpers/ctl_setup.sh

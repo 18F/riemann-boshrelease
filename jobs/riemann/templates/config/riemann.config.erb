@@ -3,6 +3,8 @@
 (ns riemann.config
   (:require [riemann.time :as time]))
 
+; if we have slack creds, then define 'slacker' to be an interface as described here: http://riemann.io/howto.html#sent-events-to-slack
+; if we don't have creds, define 'slacker' to just print out whatever is passed to it, so other functions can depend on slacker being defined
 <% if p("riemann.slack.account").empty? || p("riemann.slack.token").empty? || p("riemann.slack.channel").empty? %>
 (def slacker #(prn "[slack]" %))
 <% else %>
