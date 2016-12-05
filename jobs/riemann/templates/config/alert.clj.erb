@@ -5,10 +5,26 @@ host      = p('riemann.mailer.smtp-server', nil)
 port      = p('riemann.mailer.smtp-port', nil)
 user      = p('riemann.mailer.smtp-user', nil)
 password  = p('riemann.mailer.smtp-password', nil)
+env       = p('riemann.mailer.environment', nil)
 %>
 
-<% if from && to && host && port && user && password %>
-(def email (mailer {:from "<%= from %>" :host "<%= host %>" :port <%= port %> :user "<%= user %>" :pass "<%= password %>"}))
+<% if from && to && host && port && user && password && env %>
+(defn format-subject
+  "Format the email subject"
+  [events]
+  (let [format-str "[<%= env %>] Service %s is in state %s on host %s"
+        services   (str/join ", " (map :service events))
+	states     (str/join ", " (map :state events)) 
+	host       (map :host events)]
+    (apply format format-str services states host)))
+
+(def email (mailer {:from "<%= from %>" 
+                    :host "<%= host %>" 
+		    :port <%= port %> 
+		    :user "<%= user %>" 
+		    :pass "<%= password %>"
+		    :subject (fn [events] (format-subject events))}))
+
 (def sendAlert (throttle 5 3600  (email "<%= to %>")))
 <% else %>
 (def sendAlert prn )

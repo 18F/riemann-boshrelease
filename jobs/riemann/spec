@@ -165,6 +165,9 @@ properties:
     description: "SMTP User"
   riemann.mailer.smtp-password:
     description: "SMTP Password"
+  riemann.mailer.environment:
+    description: "Environment to prefix subject line with"
+    default: "Development"
 
   # InfluxDB client configurations
   riemann.influxdb.host:
