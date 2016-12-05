@@ -14,16 +14,16 @@ env       = p('riemann.mailer.environment', nil)
   [events]
   (let [format-str "[<%= env %>] Service %s is in state %s on host %s"
         services   (str/join ", " (map :service events))
-	states     (str/join ", " (map :state events)) 
-	host       (map :host events)]
+        states     (str/join ", " (map :state events)) 
+        host       (map :host events)]
     (apply format format-str services states host)))
 
 (def email (mailer {:from "<%= from %>" 
                     :host "<%= host %>" 
-		    :port <%= port %> 
-		    :user "<%= user %>" 
-		    :pass "<%= password %>"
-		    :subject (fn [events] (format-subject events))}))
+                    :port <%= port %> 
+                    :user "<%= user %>" 
+                    :pass "<%= password %>"
+                    :subject (fn [events] (format-subject events))}))
 
 (def sendAlert (throttle 5 3600  (email "<%= to %>")))
 <% else %>
