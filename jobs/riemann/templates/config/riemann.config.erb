@@ -1,9 +1,9 @@
 ;; -*- mode: clojure; -*-
 ;; vim: filetype=clojure
 (ns riemann.config
-  (:require [riemann.time :as time
-             riemann.email :refer :all
-             clojure.string :as str]))
+  (:require [riemann.time :as time]
+            [riemann.email :refer :all]
+            [clojure.string :as str]))
 
 ; if we have slack creds, then define 'slacker' to be an interface as described here: http://riemann.io/howto.html#sent-events-to-slack
 ; if we don't have creds, define 'slacker' to just print out whatever is passed to it, so other functions can depend on slacker being defined
