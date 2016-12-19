@@ -45,7 +45,7 @@
      (rewrite-bosh-hm-events)
      (hm-alerts pd)
 
-     <% if_p("riemann.logsearch.platform_logs_threshold", "riemann.logsearch.app_logs_threshold") do %>
+     <% if p("riemann.logsearch.platform_logs_threshold", nil) or p("riemann.logsearch.app_logs_threshold", nil) %>
      (logsearch-alerts pd)
      <% end %>
 

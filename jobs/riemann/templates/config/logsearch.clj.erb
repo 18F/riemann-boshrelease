@@ -3,12 +3,12 @@
 (defn logsearch-alerts [pd]
   (info "Setting up logsearch alerts")
   (sdo
-    <% if_p("riemann.logsearch.platform_logs_threshold") do %>
+    <% if_p("riemann.logsearch.platform_logs_threshold") do |threshold| %>
       (try
         (where
           (and
             (service "logsearch.health.platform")
-            (<= metric <%= p("riemann.logsearch.platform_logs_threshold") %>))
+            (<= metric <%= threshold %>))
           (:trigger pd))
       (catch Exception e #(warn "logsearch.platform_logs_threshold-exception: " (.getMessage e))))
 
@@ -19,12 +19,12 @@
       (catch Exception e #(warn "logsearch.health.platform-exception: " (.getMessage e))))
     <% end %>
 
-    <% if_p("riemann.logsearch.app_logs_threshold") do %>
+    <% if_p("riemann.logsearch.app_logs_threshold") do |threshold| %>
       (try
         (where
           (and
             (service "logsearch.health.app")
-            (<= metric <%= p("riemann.logsearch.app_logs_threshold") %>))
+            (<= metric <%= threshold %>))
           (:trigger pd))
         (catch Exception e #(warn "logsearch.logsearch.app_logs_threshold-exception: " (.getMessage e))))
 
