@@ -5,34 +5,28 @@
   (sdo
     <% if_p("riemann.logsearch.platform_logs_threshold") do |threshold| %>
       (try
-        (where
-          (and
-            (service "logsearch.health.platform")
-            (<= metric <%= threshold %>))
-          (:trigger pd))
-      (catch Exception e #(warn "logsearch.platform_logs_threshold-exception: " (.getMessage e))))
-
-      (try
-        (where
-          (and (service "logsearch.health.platform") (state "expired"))
-          (:trigger pd))
-      (catch Exception e #(warn "logsearch.health.platform-exception: " (.getMessage e))))
+        (where (service "logsearch.health.platform")
+          (pipe -
+            (splitp >= metric
+              <%= threshold %> (with :state "critical" -)
+              (with :state "ok" -))
+            (changed-state {:init "ok"}
+              (where (state "ok") (:resolve pd)
+                (else (:trigger pd))))))
+      (catch Exception e #(warn "logsearch.health.platform_logs_threshold-exception: " (.getMessage e))))
     <% end %>
 
     <% if_p("riemann.logsearch.app_logs_threshold") do |threshold| %>
       (try
-        (where
-          (and
-            (service "logsearch.health.app")
-            (<= metric <%= threshold %>))
-          (:trigger pd))
-        (catch Exception e #(warn "logsearch.logsearch.app_logs_threshold-exception: " (.getMessage e))))
-
-      (try
-        (where
-          (and (service "logsearch.health.app") (state "expired"))
-          (:trigger pd))
-        (catch Exception e #(warn "logsearch.health.app-exception: " (.getMessage e))))
+        (where (service "logsearch.health.app")
+          (pipe -
+            (splitp >= metric
+              <%= threshold %> (with :state "critical" -)
+              (with :state "ok" -))
+            (changed-state {:init "ok"}
+              (where (state "ok") (:resolve pd)
+                (else (:trigger pd))))))
+        (catch Exception e #(warn "logsearch.health.app_logs_threshold-exception: " (.getMessage e))))
     <% end %>
   )
 )
