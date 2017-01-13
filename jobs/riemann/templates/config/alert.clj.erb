@@ -25,7 +25,7 @@ env       = p('riemann.mailer.environment', nil)
                     :pass "<%= password %>"
                     :subject (fn [events] (format-subject events))}))
 
-(def sendAlert (throttle 5 3600  (email "<%= to %>")))
+(def sendAlert (email "<%= to %>"))
 <% else %>
 (def sendAlert prn )
 <% end %>
