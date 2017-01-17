@@ -14,6 +14,7 @@ export LANG=en_US.UTF-8
 JAVA_OPTS="-Dio.netty.tmpdir=$TMP_DIR -server -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -XX:+UseCompressedOops -XX:+CMSClassUnloadingEnabled"
 <% if_p("riemann.java.xms") do %>JAVA_OPTS="$JAVA_OPTS -Xms<%= p("riemann.java.xms") %>"<% end %>
 <% if_p("riemann.java.xmx") do %>JAVA_OPTS="$JAVA_OPTS -Xmx<%= p("riemann.java.xmx") %>"<% end %>
+<% if_p("riemann.java.HeapDumpPath") do %>JAVA_OPTS="$JAVA_OPTS -XX:HeapDumpPath=<%= p("riemann.java.HeapDumpPath") %> -XX:+HeapDumpOnOutOfMemoryError"<% end %>
 
 case $1 in
   start)
