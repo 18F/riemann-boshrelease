@@ -48,6 +48,9 @@ properties:
     description: "Specifies the initial size of the memory allocation pool"
   riemann.java.xmx:
     description: "Specifies the maximum size of the memory allocation pool"
+  riemann.java.HeapDumpPath:
+    description: "If not blank will write heap dumps to this directory when OutOfMemory exceptions occur"
+    default: "/var/vcap/store/riemann"
   riemann.custom_rules:
     description: "Custom alert rules"
     default: ""
