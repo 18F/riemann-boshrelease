@@ -6,9 +6,9 @@
   (where (service "elasticsearch health")
     (changed-state {:init "ok"}
       (stable 180 :state
-        (where (state "critical")
-          (with :description "https://cloud.gov/docs/ops/runbook/troubleshooting-logsearch"
-            (:trigger pd))
+        (where (state "ok")
+          (:resolve pd)
         (else
-          (:resolve pd))))))
+          (with :description "https://cloud.gov/docs/ops/runbook/troubleshooting-logsearch"
+            (:trigger pd)))))))
 )
