@@ -7,8 +7,9 @@
       (try
         (where (service "logsearch.health.platform")
           (pipe -
-            (splitp >= metric
-              <%= threshold %> (with :state "critical" -)
+            (split >= metric
+              (= state "expired") (with :state "expired" -)
+              (< metric <%= threshold %>) (with :state "critical" -)
               (with :state "ok" -))
             (changed-state {:init "ok"}
               (where (state "ok") (:resolve pd)
@@ -20,8 +21,9 @@
       (try
         (where (service "logsearch.health.app")
           (pipe -
-            (splitp >= metric
-              <%= threshold %> (with :state "critical" -)
+            (split
+              (= state "expired") (with :state "expired" -)
+              (< metric <%= threshold %>) (with :state "critical" -)
               (with :state "ok" -))
             (changed-state {:init "ok"}
               (where (state "ok") (:resolve pd)
