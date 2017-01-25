@@ -30,6 +30,7 @@
 (include "/var/vcap/jobs/riemann/include/snort.clj")
 (include "/var/vcap/jobs/riemann/include/disk.clj")
 (include "/var/vcap/jobs/riemann/include/swap.clj")
+(include "/var/vcap/jobs/riemann/include/memory.clj")
 (include "/var/vcap/jobs/riemann/include/influxdb.clj")
 (include "/var/vcap/jobs/riemann/include/influxdb_backups.clj")
 (include "/var/vcap/jobs/riemann/include/awslogs.clj")
@@ -70,6 +71,7 @@
      (snort-alerts pd)
      (disk-alerts pd)
      (swap-alerts pd)
+     (memory-alerts pd)
 
      (unknown-vm-alert pd)
 

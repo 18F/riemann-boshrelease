@@ -19,6 +19,7 @@ templates:
   config/snort.clj.erb: include/snort.clj
   config/disk.clj.erb: include/disk.clj
   config/swap.clj.erb: include/swap.clj
+  config/memory.clj.erb: include/memory.clj
   config/logging.clj.erb: include/logging.clj
   config/logsearch.clj.erb: include/logsearch.clj
   config/interface.clj.erb: include/interface.clj
@@ -100,11 +101,19 @@ properties:
 
   # Swap alert settings
   riemann.swap.critical:
-    description: "Amount of swap in bits remaining before alerting"
-    default: 1000000000
+    description: "Raise an alert when swap utilization percentage is >="
+    default: 25
   riemann.swap.warn:
-    description: "Amount of swap in bits remaining before warning"
-    default: 5000000000
+    description: "Warn when swap utilization percentage is >="
+    default: 10
+
+  # Memory alert settings
+  riemann.memory.critical:
+    description: "Raise an alert when memory utilization percentage is >="
+    default: 85
+  riemann.memory.warn:
+    description: "Warn when memory utilization percentage is >="
+    default: 75
 
   riemann.logsearch.platform_logs_threshold:
     description: "Minimum number of platform logs per interval"
