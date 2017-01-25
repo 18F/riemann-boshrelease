@@ -1,0 +1,19 @@
+(info "Loading memory alerts")
+
+(defn memory-alerts [pd]
+  (info "Setting up memory alerts")
+  (where (service "memory/percent-used")
+    (pipe -
+      (splitp < metric
+        <%= p("riemann.memory.critical") %> (with :state "critical" -)
+        <%= p("riemann.memory.warn") %> (with :state "warn" -)
+        (with :state "ok" -)
+      )
+      (changed-state {:init "ok"} (
+        where (state "ok") (:resolve pd)
+        (else (where (state "critical") (:trigger pd)
+        (else (where (state "warn") #(warn "Free memory is low: " %)
+      ))))))
+    )
+  )
+)
