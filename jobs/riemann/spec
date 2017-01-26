@@ -119,7 +119,7 @@ properties:
     description: "Array of hashes describing host specific overrides for memory utilization percentage alerts"
     default: []
     # The following keys MUST EXIST in each hash:
-    # host: A regex which must match the host(s) this override should apply to
+    # host: A regex which must match the host(s) this override should apply to.  The regex must match the entire host, partial matches are not allowed.
     # threshold: A metric value above this threshold will trigger a state change
     # state: A state to change to:
     #   "critical" - An alert is raised via PagerDuty
