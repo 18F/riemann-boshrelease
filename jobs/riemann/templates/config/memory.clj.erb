@@ -18,13 +18,15 @@
         )
       )
 
-      ; only act on state changes when they've been stable for 5 minutes
-      (stable 300 :state
-        (changed-state {:init "ok"} (
-          where (state "ok") (:resolve pd)
-          (else (where (state "critical") (:trigger pd)
-          (else (where (state "warn") #(warn "Free memory is low: " %)
-        ))))))
+      (by [:host :service]
+        ; only act on state changes when they've been stable for 5 minutes
+        (stable 300 :state
+          (changed-state {:init "ok"} (
+            where (state "ok") (:resolve pd)
+            (else (where (state "critical") (:trigger pd)
+            (else (where (state "warn") #(warn "Free memory is low: " %)
+          ))))))
+        )
       )
     )
   )
