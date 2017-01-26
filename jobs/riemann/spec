@@ -107,13 +107,32 @@ properties:
     description: "Warn when swap utilization percentage is >="
     default: 10
 
-  # Memory alert settings
+  # Default Memory alert settings applied to all hosts unless they are specifically overrided below
   riemann.memory.critical:
     description: "Raise an alert when memory utilization percentage is >="
-    default: 85
+    default: 90
   riemann.memory.warn:
     description: "Warn when memory utilization percentage is >="
     default: 75
+
+  riemann.memory.overrides:
+    description: "Array of hashes describing host specific overrides for memory utilization percentage alerts"
+    default: []
+    # The following keys MUST EXIST in each hash:
+    # host: A regex which must match the host(s) this override should apply to
+    # threshold: A metric value above this threshold will trigger a state change
+    # state: A state to change to:
+    #   "critical" - An alert is raised via PagerDuty
+    #   "warn" - A notification is generated
+    #   "ok" - Open alerts are closed
+    # NOTE: This is implemented using https://clojuredocs.org/clojure.core/cond so order of entries in this list is important!
+    example:
+    - host: '^queue.\d+'
+      threshold: 50
+      state: critical
+    - host: '^queue.\d+'
+      threshold: 25
+      state: warn
 
   riemann.logsearch.platform_logs_threshold:
     description: "Minimum number of platform logs per interval"

@@ -3,17 +3,29 @@
 (defn memory-alerts [pd]
   (info "Setting up memory alerts")
   (where (service "memory/percent-used")
-    (pipe -
-      (splitp < metric
-        <%= p("riemann.memory.critical") %> (with :state "critical" -)
-        <%= p("riemann.memory.warn") %> (with :state "warn" -)
-        (with :state "ok" -)
+    (smap
+      (fn [event]
+        ; set the event's state based on the value of the metric, and possibly the specific host it originated from
+        (assoc event :state
+          (cond
+          <% p("riemann.memory.overrides").each do |over| %>
+            (and (re-matches #"<%= over["host"] %>" (:host event)) (> (:metric event) <%= over["threshold"] %>)) "<%= over["state"] %>"
+          <% end %>
+            (> (:metric event) <%= p("riemann.memory.critical") %>) "critical"
+            (> (:metric event) <%= p("riemann.memory.warn") %>) "warn"
+            :else "ok"
+          )
+        )
       )
-      (changed-state {:init "ok"} (
-        where (state "ok") (:resolve pd)
-        (else (where (state "critical") (:trigger pd)
-        (else (where (state "warn") #(warn "Free memory is low: " %)
-      ))))))
+
+      ; only act on state changes when they've been stable for 5 minutes
+      (stable 300 :state
+        (changed-state {:init "ok"} (
+          where (state "ok") (:resolve pd)
+          (else (where (state "critical") (:trigger pd)
+          (else (where (state "warn") #(warn "Free memory is low: " %)
+        ))))))
+      )
     )
   )
 )
