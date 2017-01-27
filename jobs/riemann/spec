@@ -22,6 +22,7 @@ templates:
   config/memory.clj.erb: include/memory.clj
   config/logging.clj.erb: include/logging.clj
   config/logsearch.clj.erb: include/logsearch.clj
+  config/audit-tokens.clj.erb: include/audit-tokens.clj
   config/interface.clj.erb: include/interface.clj
   config/influxdb.clj.erb: include/influxdb.clj
   config/influxdb_backups.clj.erb: include/influxdb_backups.clj
@@ -138,6 +139,13 @@ properties:
     description: "Minimum number of platform logs per interval"
   riemann.logsearch.app_logs_threshold:
     description: "Minimum number of application logs per interval"
+
+  riemann.token_audit.admin_threshold:
+    description: "Alert threshold for tokens per admin user"
+    default: 2
+  riemann.token_audit.user_threshold:
+    description: "Alert threshold for tokens per non-admin user"
+    default: 3
 
   riemann.firehose.cc_5XX_ratio:
     description: "Alert threshold for Cloud Controller 5XX response ratio"

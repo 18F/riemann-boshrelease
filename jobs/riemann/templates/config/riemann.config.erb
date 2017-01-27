@@ -24,6 +24,7 @@
 (include "/var/vcap/jobs/riemann/include/firehose.clj")
 (include "/var/vcap/jobs/riemann/include/monitor.clj")
 (include "/var/vcap/jobs/riemann/include/logsearch.clj")
+(include "/var/vcap/jobs/riemann/include/audit-tokens.clj")
 (include "/var/vcap/jobs/riemann/include/elastic.clj")
 (include "/var/vcap/jobs/riemann/include/rds.clj")
 (include "/var/vcap/jobs/riemann/include/clamav.clj")
@@ -48,6 +49,10 @@
 
      <% if p("riemann.logsearch.platform_logs_threshold", nil) or p("riemann.logsearch.app_logs_threshold", nil) %>
      (logsearch-alerts pd)
+     <% end %>
+
+     <% if_p("riemann.token_audit.admin_threshold", "riemann.token_audit.user_threshold") do |admin, user| %>
+     (token-audit-alerts pd admin user)
      <% end %>
 
      (firehose-alerts pd)
