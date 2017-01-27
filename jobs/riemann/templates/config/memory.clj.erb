@@ -17,7 +17,7 @@
           )
           :description (cond
           <% p("riemann.memory.overrides").each do |over| %>
-            <% if entry.key?("description") %>
+            <% if over.key?("description") %>
             (and (re-matches #"<%= over["host"] %>" (:host event)) (> (:metric event) <%= over["threshold"] %>)) "<%= over["description"] %>"
             <% end %>
           <% end %>
