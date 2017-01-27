@@ -125,11 +125,13 @@ properties:
     #   "critical" - An alert is raised via PagerDuty
     #   "warn" - A notification is generated
     #   "ok" - Open alerts are closed
+    # description (optional): A description to add to the event
     # NOTE: This is implemented using https://clojuredocs.org/clojure.core/cond so order of entries in this list is important!
     example:
     - host: '^queue.\d+'
       threshold: 50
       state: critical
+      description: Host is at 50 percent utilization check http://example.com/docs/fixme.html
     - host: '^queue.\d+'
       threshold: 25
       state: warn

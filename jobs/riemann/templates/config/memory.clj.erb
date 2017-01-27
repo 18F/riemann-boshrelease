@@ -6,8 +6,8 @@
     (smap
       (fn [event]
         ; set the event's state based on the value of the metric, and possibly the specific host it originated from
-        (assoc event :state
-          (cond
+        (assoc event
+          :state (cond
           <% p("riemann.memory.overrides").each do |over| %>
             (and (re-matches #"<%= over["host"] %>" (:host event)) (> (:metric event) <%= over["threshold"] %>)) "<%= over["state"] %>"
           <% end %>
@@ -15,6 +15,15 @@
             (> (:metric event) <%= p("riemann.memory.warn") %>) "warn"
             :else "ok"
           )
+          :description (cond
+          <% p("riemann.memory.overrides").each do |over| %>
+            <% if entry.key?("description") %>
+            (and (re-matches #"<%= over["host"] %>" (:host event)) (> (:metric event) <%= over["threshold"] %>)) "<%= over["description"] %>"
+            <% end %>
+          <% end %>
+            :else nil
+          )
+
         )
       )
 
