@@ -2,7 +2,7 @@
 
 (defn awslogs-alerts [pd]
   (info "Setting up awslogs alerts")
-    (let [whitelist #{<%= p("riemann.awslogs.whitelist").map { |item| "'awslogs.#{item}.lastEventTimestamp'" }.join(" ") %>}]
+    (let [whitelist #{<%= p("riemann.awslogs.whitelist").map { |item| "\"awslogs.#{item}.lastEventTimestamp\"" }.join(" ") %>}]
       (sdo
         <% p("riemann.awslogs.metrics").each do |metric| %>
         (where
