@@ -29,5 +29,5 @@ QUERY=$(${JQ_PATH} -n "{
 PLATFORM_LOGS=$(( $(query "platform" ${TODAY}) + $(query "platform" ${YESTERDAY}) ))
 ${RIEMANNC_PATH} --service "logsearch.health.platform" --host $(hostname) --ttl ${TTL} --metric_sint64 ${PLATFORM_LOGS}
 
-APP_LOGS=$(( $(query "app-*" ${TODAY}) + $(query "app-*" ${YESTERDAY}) ))
+APP_LOGS=$(( $(query "app" ${TODAY}) + $(query "app" ${YESTERDAY}) ))
 ${RIEMANNC_PATH} --service "logsearch.health.app" --host $(hostname) --ttl ${TTL} --metric_sint64 ${APP_LOGS}
