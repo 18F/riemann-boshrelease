@@ -1,11 +1,11 @@
 (info "Loading elastic alerts")
 
-(defn elastic-alerts [pd]
+(defn elastic-alerts [pd stable-dt]
   (info "Setting up elastic alerts")
 
   (where (service "elasticsearch health")
     (changed-state {:init "ok"}
-      (stable 180 :state
+      (stable stable-dt :state
         (where (state "ok")
           (:resolve pd)
         (else
