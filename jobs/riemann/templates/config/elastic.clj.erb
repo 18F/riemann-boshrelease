@@ -1,14 +1,29 @@
 (info "Loading elastic alerts")
 
-(defn elastic-alerts [pd stable-dt]
+(defn elastic-alerts [pd stable-other stable-critical]
   (info "Setting up elastic alerts")
 
   (where (service "elasticsearch health")
-    (changed-state {:init "ok"}
-      (stable stable-dt :state
-        (where (state "ok")
-          (:resolve pd)
-        (else
-          (with :description "https://cloud.gov/docs/ops/runbook/troubleshooting-logsearch"
-            (:trigger pd)))))))
+    (with :description "https://cloud.gov/docs/ops/runbook/troubleshooting-logsearch"
+      (changed-state {:init "ok"}
+        (sdo
+          ; Trigger critical alerts faster than other states as the cluster should never be red
+          (stable stable-critical :state
+            (where (state "critical")
+              (:trigger pd)
+            )
+          )
+          ; Make sure the cluster is either in a yellow state for a long time before we raise an alrt
+          ; Or that it remains green for the same period of time before closing it
+          (stable stable-other :state
+            (where (state "ok")
+              (:resolve pd)
+            (else
+              (:trigger pd)
+            ))
+          )
+        )
+      )
+    )
+  )
 )

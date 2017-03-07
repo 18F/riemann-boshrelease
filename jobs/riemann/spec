@@ -163,9 +163,13 @@ properties:
     - service: awslogs._GLOBAL
       threshold: 300
 
-  riemann.elastic.stable_dt:
-    description: "Elastic stable delta time threshold"
-    default: 300
+  riemann.elastic.stable_critical:
+    description: "When riemann emitter reports critical state for this many seconds, raise an alert.  This should be shorter than rieman.elastic.stable_other"
+    default: 60
+
+  riemann.elastic.stable_other:
+    description: "When riemann emitter reports any state other than critical for this many seconds, trigger an action (alert or resolution)"
+    default: 900
 
   # "fail closed" settings
   # https://github.com/18F/cg-product/issues/476
