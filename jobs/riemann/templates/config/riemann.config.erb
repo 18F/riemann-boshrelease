@@ -60,7 +60,7 @@
      (awslogs-alerts pd)
      <% end %>
 
-     (elastic-alerts pd <%= p ("riemann.elastic.stable_dt") %>)
+     (elastic-alerts pd <%= p("riemann.elastic.stable_other") %> <%= p("riemann.elastic.stable_critical") %>)
 
      <% if_p("riemann.rds.cpu_threshold") do %>
      (rds-alerts pd)
