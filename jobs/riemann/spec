@@ -93,11 +93,11 @@ properties:
 
   # Disk alert settings
   riemann.disk.critical:
-    description: "Amount of disk in bits remaining before alerting"
-    default: 1000000000
+    description: "Raise an alert when disk usage percentage is >="
+    default: 75
   riemann.disk.warn:
-    description: "Amount of disk in bits remaining before warning"
-    default: 5000000000
+    description: "Warn when disk usage percentage is >="
+    default: 70
 
   # Swap alert settings
   riemann.swap.critical:
