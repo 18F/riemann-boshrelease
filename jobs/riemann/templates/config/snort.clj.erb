@@ -6,6 +6,7 @@
   (try
     (where
       (and (service "snort") (state "critical"))
-      (:trigger pd))
+        (with :description "https://cloud.gov/docs/ops/runbook/troubleshooting-snort"
+          (:trigger pd)))
     (catch Exception e #(warn "snort-exception: " (.getMessage e))))
 )
