@@ -30,6 +30,7 @@ templates:
   config/unknown-vms.clj.erb: include/unknown-vms.clj
   config/nessus.clj.erb: include/nessus.clj
   config/no_logs.clj.erb: include/no_logs.clj
+  config/k8s.clj.erb: include/k8s.clj
 
 packages:
   - java
@@ -170,6 +171,10 @@ properties:
   riemann.elastic.stable_other:
     description: "When riemann emitter reports any state other than critical for this many seconds, trigger an action (alert or resolution)"
     default: 900
+
+  riemann.k8s.stable:
+    description: "When a pod has a status other than Running for this many seconds, raise an alert."
+    default: 300
 
   # "fail closed" settings
   # https://github.com/18F/cg-product/issues/476

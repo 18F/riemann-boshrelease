@@ -37,6 +37,7 @@
 (include "/var/vcap/jobs/riemann/include/nessus.clj")
 (include "/var/vcap/jobs/riemann/include/unknown-vms.clj")
 (include "/var/vcap/jobs/riemann/include/no_logs.clj")
+(include "/var/vcap/jobs/riemann/include/k8s.clj")
 
 (let [index (index)]
   (streams
@@ -61,6 +62,8 @@
      <% end %>
 
      (elastic-alerts pd <%= p("riemann.elastic.stable_other") %> <%= p("riemann.elastic.stable_critical") %>)
+
+     (k8s-alerts pd <%= p("riemann.k8s.stable") %>)
 
      <% if_p("riemann.rds.cpu_threshold") do %>
      (rds-alerts pd)
