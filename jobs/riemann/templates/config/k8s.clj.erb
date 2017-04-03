@@ -4,7 +4,7 @@
       (with :description "https://cloud.gov/docs/ops/runbook/troubleshooting-kubernetes"
         (stable stable-time :state
           (changed-state {:init "Running"}
-            (where (state "Running")
+            (where (or (state "Running") (state "expired"))
               (:resolve pd)
             (else
               (:trigger pd)
