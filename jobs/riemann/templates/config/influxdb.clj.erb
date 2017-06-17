@@ -8,8 +8,6 @@
 (defn influx [opts pd]
   (batch 1000 30
     (let [opts (merge influxdb-config opts)
-          throttled-alert (throttle 1 900 (:trigger pd))
-          throttled-log (throttle 1 60 #(warn "influxdb-send-exception: " (.getMessage %)))
           send-influx (influxdb opts)]
       (async-queue! :agg {:queue-size 1e3
                           :core-pool-size 1
@@ -23,12 +21,4 @@
             (try
               (send-influx event-clean)
               (catch Exception e
-                (throttled-alert {:host "riemann.internal"
-                                  :service "send-influx"
-                                  :state "critical"
-                                  :metric 1
-                                  :tags []
-                                  :ttl 60
-                                  :description (.getMessage e)
-                                  :time (time/unix-time-real)})
-                (throttled-log e)))))))))
+                (warn (str "influxdb-send-exception: " (.getMessage e)))))))))))
