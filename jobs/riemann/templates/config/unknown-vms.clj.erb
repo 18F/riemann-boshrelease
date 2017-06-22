@@ -1,9 +1,11 @@
 (defn unknown-vm-alert [pd]
   (sdo
     (where (service "unknown-vm.check")
-      (where (state "expired")
-        (:trigger pd)
-        (else (:resolve pd))
+      (with :description "Unknown VM check has not reported in a while"
+        (where (state "expired")
+          (:trigger pd)
+          (else (:resolve pd))
+        )
       )
     )
     (where (service "unknown-vm.found")
