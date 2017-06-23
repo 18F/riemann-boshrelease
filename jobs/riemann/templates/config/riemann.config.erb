@@ -32,7 +32,6 @@
 (include "/var/vcap/jobs/riemann/include/swap.clj")
 (include "/var/vcap/jobs/riemann/include/memory.clj")
 (include "/var/vcap/jobs/riemann/include/influxdb.clj")
-(include "/var/vcap/jobs/riemann/include/influxdb_backups.clj")
 (include "/var/vcap/jobs/riemann/include/awslogs.clj")
 (include "/var/vcap/jobs/riemann/include/nessus.clj")
 (include "/var/vcap/jobs/riemann/include/unknown-vms.clj")
@@ -80,8 +79,6 @@
 
      (find_vms_missing_logs)
      (snapshot_and_stop_vm pd)
-
-     (influxdb-backup-alerts pd)
 
      ; Send events to influxdb with firehose attributes as tags
      (influx {:tags {"env" "<%= p("riemann.influxdb.database") %>"}
