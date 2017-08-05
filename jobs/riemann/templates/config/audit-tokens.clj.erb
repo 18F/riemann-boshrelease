@@ -1,0 +1,9 @@
+(info "Loading token audit alerts")
+
+(defn token-audit-alerts [pd admin-threshold user-threshold]
+  (info "Setting up token audit alerts")
+
+  (where (service "uaa-token-audit")
+    (where (and (= (:is-admin event) "true") (> metric admin-threshold)) (:trigger pd)
+      (else (where (> metric user-threshold)) (:trigger pd))))
+)
